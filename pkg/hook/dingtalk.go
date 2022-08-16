@@ -3,7 +3,7 @@ package hook
 import (
 	"fmt"
 
-	http "github.com/jiuhuche120/jhttp"
+	"github.com/jiuhuche120/jhttp"
 )
 
 var _ Webhook = (*DingTalk)(nil)
@@ -24,8 +24,8 @@ func (d *DingTalk) ID() string {
 }
 
 func (d *DingTalk) Call(msg interface{}) error {
-	client := http.NewClient(
-		http.AddHeader("Content-Type", "application/json"),
+	client := jhttp.NewClient(
+		jhttp.AddHeader("Content-Type", "application/json"),
 	)
 	resp, err := client.Post(d.webhook, msg)
 	if err != nil {

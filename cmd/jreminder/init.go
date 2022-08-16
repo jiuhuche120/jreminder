@@ -37,7 +37,6 @@ func Initialize(ctx *cli.Context) error {
 	}
 	_, err = os.Stat(filepath.Join(path, config.DefaultName))
 	if err != nil {
-		fmt.Println(err.Error())
 		if os.IsNotExist(err) {
 			data, err := box.Find(DefaultConfig)
 			if err != nil {

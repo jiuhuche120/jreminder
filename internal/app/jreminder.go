@@ -95,6 +95,7 @@ func loadRules(cfg *config.Config) ([]rule.Rule, error) {
 	var rules []rule.Rule
 	GitHubRuleOneMap := make(map[string]*config.CheckMainBranchMerged)
 	GitHubRuleTwoMap := make(map[string]*config.CheckPullRequestTimeout)
+	TeambitionRuleMap := make(map[string]*config.CheckTeambitionTimeout)
 	for k, v := range cfg.Rules.CheckMainBranchMerged {
 		ID := fmt.Sprintf("%v.%v", "checkMainBranchMerged", k)
 		GitHubRuleOneMap[ID] = v
@@ -102,6 +103,10 @@ func loadRules(cfg *config.Config) ([]rule.Rule, error) {
 	for k, v := range cfg.Rules.CheckPullRequestTimeout {
 		ID := fmt.Sprintf("%v.%v", "checkPullRequestTimeout", k)
 		GitHubRuleTwoMap[ID] = v
+	}
+	for k, v := range cfg.Rules.CheckTeambitionTimeout {
+		ID := fmt.Sprintf("%v.%v", "checkTeambitionTimeout", k)
+		TeambitionRuleMap[ID] = v
 	}
 	for k, v := range cfg.Repositories {
 		for _, r := range v.Rules {
@@ -118,6 +123,18 @@ func loadRules(cfg *config.Config) ([]rule.Rule, error) {
 				rules = append(rules, two)
 			}
 			if !ok1 && !ok2 {
+				return nil, fmt.Errorf("error load rules %s", r)
+			}
+		}
+	}
+	for k, v := range cfg.Teambitions {
+		for _, r := range v.Rules {
+			teambitionRule, ok := TeambitionRuleMap[r]
+			if ok {
+				ruleID := fmt.Sprintf("%v.%v", k, r)
+				timeoutRule := rule.NewTeambitionTimeoutRule(ruleID, cfg.Account.Email, cfg.Account.Password, cfg.Members, v.Webhook, v.Project, v.App, teambitionRule.Cron)
+				rules = append(rules, timeoutRule)
+			} else {
 				return nil, fmt.Errorf("error load rules %s", r)
 			}
 		}

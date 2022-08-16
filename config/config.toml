@@ -2,9 +2,14 @@ title = "jreminder config file"
 
 [log]
 level = "info"
+report_caller = false
 
 [github]
-token = "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"
+token = "XXX"
+
+[account]
+email = "XXX"
+password = "XXX"
 
 [repositories]
 [repositories.bitxhub]
@@ -19,6 +24,13 @@ project = "pier"
 rules = ["checkMainBranchMerged.rule1", "checkPullRequestTimeout.rule1"]
 webhook = ["dingtalk"]
 
+[teambition]
+[teambition.bitxhub]
+project = "XXX"
+app = "XXX"
+rules = ["checkTeambitionTimeout.rule1"]
+webhook = ["dingtalk"]
+
 [rules]
 # check if the main branches are merged
 [rules.checkMainBranchMerged.rule1]
@@ -29,32 +41,16 @@ cron = "0 30 16 * * *"
 [rules.checkPullRequestTimeout.rule1]
 timeout = "72h"
 cron = "0 30 16 * * *"
+# check if the task timed out
+[rules.checkTeambitionTimeout.rule1]
+cron = "0 30 16 * * *"
 
 [members]
-[members.jiuhuche120]
-phone = "17376591745"
-
-[members.levi9311]
-phone = "18868105086"
-
-[members.Karenlrx]
-phone = "18328369578"
-
-[members.peterzhuzhuzhuz]
-phone = "13328400820"
-
-[members.xiaochenl]
-phone = "18248455158"
-
-[members.johnsonwyj]
-phone = "13819149972"
-
-[members.99MyCql]
-phone = "15651023329"
-
-[members.pigxiaolei]
-phone = "15979182656"
+[members.XXX]
+github = "XXX"
+name = "XXX"
+phone = "XXX"
 
 [webhooks]
 [webhook.dingtalk]
-webhook = "https://oapi.dingtalk.com/robot/send?access_token=89240674ce78edb5f96b7d8607a3516b81ab55ce7cb60aa9c9551dabefefbf49"
+webhook = "XXX"

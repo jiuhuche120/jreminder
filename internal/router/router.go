@@ -46,18 +46,18 @@ func (r *Router) Start() error {
 		for {
 			select {
 			case e := <-r.ch:
-				//err := r.callHook(e)
-				//if err != nil {
-				//	r.log.WithFields(logrus.Fields{
-				//		"module": r.module,
-				//		"id":     e.ID,
-				//		"error":  err,
-				//	}).Error("callHook failed")
-				//}
+				err := r.callHook(e)
+				if err != nil {
+					r.log.WithFields(logrus.Fields{
+						"module": r.module,
+						"id":     e.ID,
+						"error":  err,
+					}).Error("hook called failed")
+					return
+				}
 				r.log.WithFields(logrus.Fields{
 					"module": r.module,
-					"id":     e.ID,
-				}).Info("callHook succeeded")
+				}).Infof("hook called successful")
 			case <-r.ctx.Done():
 				return
 			}
@@ -66,7 +66,7 @@ func (r *Router) Start() error {
 
 	r.log.WithFields(logrus.Fields{
 		"module": r.module,
-	}).Info("Router started succeeded")
+	}).Info("router started successful")
 	return nil
 }
 
@@ -80,7 +80,7 @@ func (r *Router) callHook(event *event.Event) error {
 		if !ok {
 			return fmt.Errorf("hook %v not found", webhook)
 		}
-		err := hk.Call(event)
+		err := hk.Call(event.Msg)
 		if err != nil {
 			return err
 		}

@@ -4,8 +4,9 @@ go 1.18
 
 require (
 	github.com/BurntSushi/toml v1.2.0
+	github.com/Rican7/retry v0.3.1
 	github.com/gobuffalo/packr/v2 v2.8.3
-	github.com/jiuhuche120/jhttp v0.0.0-20220804090413-6cd483b0d14c
+	github.com/jiuhuche120/jhttp v0.0.0-20220818025801-2bc753d511bb
 	github.com/mitchellh/go-homedir v1.1.0
 	github.com/procyon-projects/chrono v1.1.0
 	github.com/sirupsen/logrus v1.9.0

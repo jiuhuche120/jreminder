@@ -7,6 +7,8 @@ import (
 
 	"github.com/jiuhuche120/jreminder/pkg/event"
 	"github.com/jiuhuche120/jreminder/pkg/rule"
+	"github.com/jiuhuche120/jreminder/pkg/tool"
+	"github.com/procyon-projects/chrono"
 	"github.com/sirupsen/logrus"
 )
 
@@ -43,7 +45,40 @@ func (i *Inform) Start() error {
 	if len(i.rules) == 0 {
 		return fmt.Errorf("empty rule")
 	}
-
+	scheduler := chrono.NewDefaultTaskScheduler()
+	// get day status
+	day, err := tool.IsWorkingDay()
+	if err != nil {
+		i.log.WithFields(logrus.Fields{
+			"module": i.module,
+		}).Errorf("error get day state: %v", err)
+		tool.DayStatus = false
+	}
+	tool.DayStatus = day
+	// schedule with cron
+	task, err := scheduler.ScheduleWithCron(func(ctx context.Context) {
+		day, err := tool.IsWorkingDay()
+		if err != nil {
+			i.log.WithFields(logrus.Fields{
+				"module": i.module,
+			}).Errorf("error get day state: %v", err)
+			tool.DayStatus = false
+		}
+		tool.DayStatus = day
+	}, "0 0 2 * * *")
+	if err != nil {
+		i.log.WithFields(logrus.Fields{
+			"module": i.module,
+		}).Errorf("error scheduler: %v", err)
+	}
+	go func() {
+		for {
+			select {
+			case <-i.ctx.Done():
+				task.Cancel()
+			}
+		}
+	}()
 	wg := sync.WaitGroup{}
 	wg.Add(len(i.rules))
 	for _, r := range i.rules {
@@ -52,15 +87,14 @@ func (i *Inform) Start() error {
 			r.Call(i.ctx, i.ch, i.log)
 			i.log.WithFields(logrus.Fields{
 				"module": i.module,
-				"ruleID": r.ID(),
-			}).Info("start rule succeeded")
+			}).Infof("rule [%v] started successful", r.ID())
 		}(r)
 	}
 	wg.Wait()
 
 	i.log.WithFields(logrus.Fields{
 		"module": i.module,
-	}).Info("Inform started succeeded")
+	}).Info("inform started successful")
 	return nil
 }
 
