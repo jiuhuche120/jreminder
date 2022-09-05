@@ -87,7 +87,7 @@ func (t TeambitionTimeoutRule) Call(ctx context.Context, ch chan *event.Event, l
 		} else {
 			log.WithFields(logrus.Fields{
 				"id": t.ruleID,
-			}).Error("today is not working day, skip")
+			}).Info("today is not working day, skip")
 			return
 		}
 	}, t.cron)

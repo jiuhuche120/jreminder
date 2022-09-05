@@ -191,7 +191,7 @@ func (g *GithubRuleTwo) Call(ctx context.Context, ch chan *event.Event, log *log
 					if time.Since(pulls[i].CreateAt) >= timeout {
 						log.WithFields(logrus.Fields{
 							"id": g.ruleID,
-						}).Infof("Pull request [%v] is timeout", pulls[i].Title)
+						}).Infof("pull request [%v] is timeout", pulls[i].Title)
 						pulls[i].DingTalk = g.githubMembers[pulls[i].User.Login]
 						hookPulls = append(hookPulls, pulls[i])
 					}
@@ -203,7 +203,7 @@ func (g *GithubRuleTwo) Call(ctx context.Context, ch chan *event.Event, log *log
 		} else {
 			log.WithFields(logrus.Fields{
 				"id": g.ruleID,
-			}).Error("today is not working day, skip")
+			}).Info("today is not working day, skip")
 			return
 		}
 	}, g.cron)
