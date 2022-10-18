@@ -12,6 +12,7 @@ const DefaultName = "config.toml"
 
 type Config struct {
 	Log          Log                   `toml:"log"`
+	Holiday      Holiday               `toml:"holiday"`
 	Github       Github                `toml:"github"`
 	Account      Account               `toml:"account"`
 	Repositories map[string]Repository `toml:"repositories"`
@@ -24,6 +25,10 @@ type Config struct {
 type Log struct {
 	Level        string `toml:"level"`
 	ReportCaller bool   `toml:"report_caller"`
+}
+
+type Holiday struct {
+	Path string `toml:"path"`
 }
 
 type Github struct {

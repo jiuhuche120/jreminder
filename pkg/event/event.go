@@ -11,7 +11,6 @@ type Event struct {
 }
 
 func NewEvent(ruleID string, webhooks []string, msg interface{}) *Event {
-	// TODO: create event ID
 	return &Event{
 		ID:         "",
 		RuleID:     ruleID,

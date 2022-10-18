@@ -8,6 +8,7 @@ import (
 	"github.com/jiuhuche120/jreminder/pkg/config"
 	"github.com/jiuhuche120/jreminder/pkg/event"
 	"github.com/jiuhuche120/jreminder/pkg/tool"
+	"github.com/jiuhuche120/jreminder/pkg/types"
 	"github.com/procyon-projects/chrono"
 	"github.com/sirupsen/logrus"
 )
@@ -21,6 +22,7 @@ type GithubRuleOne struct {
 	githubMembers map[string]string
 	scheduler     chrono.TaskScheduler
 	webhooks      []string
+	holiday       string
 	// check main branch merged config
 	repository string
 	project    string
@@ -29,7 +31,7 @@ type GithubRuleOne struct {
 	cron       string
 }
 
-func NewGithubRuleOne(ruleID, token string, members map[string]config.Member, webhooks []string, repository, project string, rule *config.CheckMainBranchMerged) *GithubRuleOne {
+func NewGithubRuleOne(ruleID, token string, members map[string]config.Member, webhooks []string, holiday, repository, project string, rule *config.CheckMainBranchMerged) *GithubRuleOne {
 	githubMembers := make(map[string]string)
 	for _, v := range members {
 		if v.Name != "" {
@@ -42,6 +44,7 @@ func NewGithubRuleOne(ruleID, token string, members map[string]config.Member, we
 		githubMembers: githubMembers,
 		scheduler:     chrono.NewDefaultTaskScheduler(),
 		webhooks:      webhooks,
+		holiday:       holiday,
 
 		repository: repository,
 		project:    project,
@@ -57,7 +60,7 @@ func (g *GithubRuleOne) ID() string {
 
 func (g *GithubRuleOne) Call(ctx context.Context, ch chan *event.Event, log *logrus.Logger) {
 	task, err := g.scheduler.ScheduleWithCron(func(ctx context.Context) {
-		if tool.DayStatus {
+		if tool.IsWorkingDay(g.holiday) {
 			pulls, err := tool.GetAllPullRequests(g.token, g.repository, g.project)
 			if err != nil {
 				log.WithFields(logrus.Fields{
@@ -66,7 +69,7 @@ func (g *GithubRuleOne) Call(ctx context.Context, ch chan *event.Event, log *log
 				}).Error("get all pull requests failed")
 				return
 			}
-			var hookPulls []*tool.PullRequest
+			var hookPulls []*types.PullRequest
 			for i := 0; i < len(pulls); i++ {
 				reg := regexp.MustCompile(g.head)
 				if pulls[i].State == "open" && reg.FindString(pulls[i].Base.Ref) != "" {
@@ -134,6 +137,7 @@ type GithubRuleTwo struct {
 	githubMembers map[string]string
 	scheduler     chrono.TaskScheduler
 	webhooks      []string
+	holiday       string
 	// check pull request timeout
 	repository string
 	project    string
@@ -141,7 +145,7 @@ type GithubRuleTwo struct {
 	cron       string
 }
 
-func NewGithubRuleTwo(ruleID, token string, members map[string]config.Member, webhooks []string, repository, project string, rule *config.CheckPullRequestTimeout) *GithubRuleTwo {
+func NewGithubRuleTwo(ruleID, token string, members map[string]config.Member, webhooks []string, holiday, repository, project string, rule *config.CheckPullRequestTimeout) *GithubRuleTwo {
 	githubMembers := make(map[string]string)
 	for _, v := range members {
 		if v.Name != "" {
@@ -154,6 +158,7 @@ func NewGithubRuleTwo(ruleID, token string, members map[string]config.Member, we
 		githubMembers: githubMembers,
 		scheduler:     chrono.NewDefaultTaskScheduler(),
 		webhooks:      webhooks,
+		holiday:       holiday,
 
 		repository: repository,
 		project:    project,
@@ -168,7 +173,7 @@ func (g *GithubRuleTwo) ID() string {
 
 func (g *GithubRuleTwo) Call(ctx context.Context, ch chan *event.Event, log *logrus.Logger) {
 	task, err := g.scheduler.ScheduleWithCron(func(ctx context.Context) {
-		if tool.DayStatus {
+		if tool.IsWorkingDay(g.holiday) {
 			pulls, err := tool.GetAllPullRequests(g.token, g.repository, g.project)
 			if err != nil {
 				log.WithFields(logrus.Fields{
@@ -177,7 +182,7 @@ func (g *GithubRuleTwo) Call(ctx context.Context, ch chan *event.Event, log *log
 				}).Error("get all pull requests failed")
 				return
 			}
-			var hookPulls []*tool.PullRequest
+			var hookPulls []*types.PullRequest
 			for i := 0; i < len(pulls); i++ {
 				if pulls[i].State == "open" {
 					timeout, err := time.ParseDuration(g.timeout)

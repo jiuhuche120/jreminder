@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/jiuhuche120/jreminder/pkg/tool"
-
 	"github.com/jiuhuche120/jreminder/pkg/config"
 	"github.com/jiuhuche120/jreminder/pkg/event"
+	"github.com/jiuhuche120/jreminder/pkg/tool"
+	"github.com/jiuhuche120/jreminder/pkg/types"
 	"github.com/procyon-projects/chrono"
 	"github.com/sirupsen/logrus"
 )
@@ -21,13 +21,14 @@ type TeambitionTimeoutRule struct {
 	teambitionMembers map[string]string
 	scheduler         chrono.TaskScheduler
 	webhooks          []string
+	holiday           string
 
 	project string
 	app     string
 	cron    string
 }
 
-func NewTeambitionTimeoutRule(ruleID string, email string, password string, members map[string]config.Member, webhooks []string, project, app, cron string) *TeambitionTimeoutRule {
+func NewTeambitionTimeoutRule(ruleID string, email string, password string, members map[string]config.Member, webhooks []string, holiday, project, app, cron string) *TeambitionTimeoutRule {
 	teambitionMembers := make(map[string]string)
 	for _, v := range members {
 		if v.Name != "" {
@@ -41,6 +42,7 @@ func NewTeambitionTimeoutRule(ruleID string, email string, password string, memb
 		teambitionMembers: teambitionMembers,
 		scheduler:         chrono.NewDefaultTaskScheduler(),
 		webhooks:          webhooks,
+		holiday:           holiday,
 
 		project: project,
 		app:     app,
@@ -48,13 +50,13 @@ func NewTeambitionTimeoutRule(ruleID string, email string, password string, memb
 	}
 }
 
-func (t TeambitionTimeoutRule) ID() string {
+func (t *TeambitionTimeoutRule) ID() string {
 	return t.ruleID
 }
 
-func (t TeambitionTimeoutRule) Call(ctx context.Context, ch chan *event.Event, log *logrus.Logger) {
+func (t *TeambitionTimeoutRule) Call(ctx context.Context, ch chan *event.Event, log *logrus.Logger) {
 	task, err := t.scheduler.ScheduleWithCron(func(ctx context.Context) {
-		if tool.DayStatus {
+		if tool.IsWorkingDay(t.holiday) {
 			cookie, err := tool.GetTeambitionCookie(t.email, t.password)
 			if err != nil {
 				log.WithFields(logrus.Fields{
@@ -71,7 +73,7 @@ func (t TeambitionTimeoutRule) Call(ctx context.Context, ch chan *event.Event, l
 				}).Error("get teambition subtasks failed")
 				return
 			}
-			var hookTasks []*tool.SubTask
+			var hookTasks []*types.SubTask
 			for _, task := range tasks {
 				if !task.IsDone && (task.StartDate.IsZero() || task.DueDate.IsZero() || time.Since(task.DueDate) > 0) {
 					log.WithFields(logrus.Fields{

@@ -4,6 +4,9 @@ title = "jreminder config file"
 level = "info"
 report_caller = false
 
+[holiday]
+path = "XXX"
+
 [github]
 token = "XXX"
 

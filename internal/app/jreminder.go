@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 
 	"github.com/jiuhuche120/jreminder/internal/inform"
 	"github.com/jiuhuche120/jreminder/internal/logger"
@@ -113,13 +114,21 @@ func loadRules(cfg *config.Config) ([]rule.Rule, error) {
 			rule1, ok1 := GitHubRuleOneMap[r]
 			if ok1 {
 				ruleID := fmt.Sprintf("%v.%v", k, r)
-				one := rule.NewGithubRuleOne(ruleID, cfg.Github.Token, cfg.Members, v.Webhook, v.Repository, v.Project, rule1)
+				bytes, err := ioutil.ReadFile(cfg.Holiday.Path)
+				if err != nil {
+					return nil, err
+				}
+				one := rule.NewGithubRuleOne(ruleID, cfg.Github.Token, cfg.Members, v.Webhook, string(bytes), v.Repository, v.Project, rule1)
 				rules = append(rules, one)
 			}
 			rule2, ok2 := GitHubRuleTwoMap[r]
 			if ok2 {
 				ruleID := fmt.Sprintf("%v.%v", k, r)
-				two := rule.NewGithubRuleTwo(ruleID, cfg.Github.Token, cfg.Members, v.Webhook, v.Repository, v.Project, rule2)
+				bytes, err := ioutil.ReadFile(cfg.Holiday.Path)
+				if err != nil {
+					return nil, err
+				}
+				two := rule.NewGithubRuleTwo(ruleID, cfg.Github.Token, cfg.Members, v.Webhook, string(bytes), v.Repository, v.Project, rule2)
 				rules = append(rules, two)
 			}
 			if !ok1 && !ok2 {
@@ -132,7 +141,11 @@ func loadRules(cfg *config.Config) ([]rule.Rule, error) {
 			teambitionRule, ok := TeambitionRuleMap[r]
 			if ok {
 				ruleID := fmt.Sprintf("%v.%v", k, r)
-				timeoutRule := rule.NewTeambitionTimeoutRule(ruleID, cfg.Account.Email, cfg.Account.Password, cfg.Members, v.Webhook, v.Project, v.App, teambitionRule.Cron)
+				bytes, err := ioutil.ReadFile(cfg.Holiday.Path)
+				if err != nil {
+					return nil, err
+				}
+				timeoutRule := rule.NewTeambitionTimeoutRule(ruleID, cfg.Account.Email, cfg.Account.Password, cfg.Members, v.Webhook, string(bytes), v.Project, v.App, teambitionRule.Cron)
 				rules = append(rules, timeoutRule)
 			} else {
 				return nil, fmt.Errorf("error load rules %s", r)

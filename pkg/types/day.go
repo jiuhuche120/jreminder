@@ -1,13 +1,13 @@
-package tool
+package types
 
 type Day struct {
 	Code    int     `json:"code,omitempty"`
-	Type    Type    `json:"type"`
+	Type    Type    `json:"types"`
 	Holiday Holiday `json:"holiday"`
 }
 
 type Type struct {
-	Type int    `json:"type,omitempty"`
+	Type int    `json:"types,omitempty"`
 	Name string `json:"name,omitempty"`
 	Week int    `json:"week,omitempty"`
 }
