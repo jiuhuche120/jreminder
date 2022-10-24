@@ -108,7 +108,7 @@ func (g *GithubRuleOne) Call(ctx context.Context, ch chan *event.Event, log *log
 		} else {
 			log.WithFields(logrus.Fields{
 				"id": g.ruleID,
-			}).Error("today is not working day, skip")
+			}).Info("today is not working day, skip")
 			return
 		}
 	}, g.cron)

@@ -23,7 +23,7 @@ const (
 func IsWorkingDay(holiday string) bool {
 	today := time.Now().Format("01-02")
 	result := gjson.Parse(holiday).Get("holiday." + today + ".holiday")
-	return result.Bool()
+	return !result.Bool()
 }
 
 func IsMerged(pull *types.PullRequest, token string) (bool, error) {
