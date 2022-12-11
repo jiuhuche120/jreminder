@@ -28,7 +28,7 @@ func NewJreminder() (*Jreminder, error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	j.ctx = ctx
 	j.cancel = cancel
-	cfg, err := config.LoadConfig()
+	cfg, err := config.GetConfig()
 	if err != nil {
 		return nil, err
 	}

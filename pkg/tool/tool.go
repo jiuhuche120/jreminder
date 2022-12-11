@@ -14,7 +14,6 @@ import (
 )
 
 const (
-	WorkingDayApi = "https://timor.tech/api/holiday/info"
 	GithubApi     = "https://api.github.com"
 	TeambitionApi = "http://teambition.hyperchain.cn:8099"
 )
